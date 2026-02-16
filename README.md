@@ -1,4 +1,3 @@
-# Expense-Splitting-Settlement-System
 # Expense Splitting & Settlement System
 
 ## Overview
