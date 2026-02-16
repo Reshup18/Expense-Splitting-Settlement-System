@@ -1,0 +1,127 @@
+expensesList = []          # stores all expenses
+balances = {}              # stores balance of each person
+
+print("***** Welcome to Group Expense Settlement App *****")
+
+while True:
+    print("\n===== MENU =====")
+    print("1. Add Shared Expense")
+    print("2. View All Expenses")
+    print("3. View Balances")
+    print("4. Generate Settlement Plan")
+    print("5. Exit")
+
+    choice = int(input("Enter your choice: "))
+
+# 1. Add Shared Expense
+    if choice == 1:
+        payer = input("Who paid the amount? ")
+        amount = float(input("Enter total amount: "))
+        
+        participants_input = input("Enter participants separated by comma: ")
+        participants = participants_input.split(",")
+
+        description = input("Enter description: ")
+
+        # Remove extra spaces
+        for i in range(len(participants)):
+            participants[i] = participants[i].strip()
+
+        # Initialize balances if new person
+        if payer not in balances:
+            balances[payer] = 0
+
+        for person in participants:
+            if person not in balances:
+                balances[person] = 0
+
+        split_amount = amount / len(participants)
+
+        # Payer gets full amount added
+        balances[payer] += amount
+
+        # Each participant owes their share
+        for person in participants:
+            balances[person] -= split_amount
+
+        # Save expense
+        expense = {
+            "payer": payer,
+            "amount": amount,
+            "participants": participants,
+            "description": description
+        }
+
+        expensesList.append(expense)
+
+        print("Expense added successfully!")
+
+# 2. View All Expenses
+    elif choice == 2:
+        if len(expensesList) == 0:
+            print("No expenses added yet.")
+        else:
+            count = 1
+            for expense in expensesList:
+                print(f"\nExpense {count}")
+                print("Payer:", expense["payer"])
+                print("Amount:", expense["amount"])
+                print("Participants:", expense["participants"])
+                print("Description:", expense["description"])
+                count += 1
+
+# 3. View Balances
+    elif choice == 3:
+        if len(balances) == 0:
+            print("No balances available.")
+        else:
+            print("\nBalances:")
+            for person in balances:
+                print(person, ":", round(balances[person], 2))
+
+# 4. Generate Settlement Plan
+    elif choice == 4:
+        creditors = []
+        debtors = []
+
+        for person in balances:
+            if round(balances[person], 2) > 0:
+                creditors.append([person, balances[person]])
+            elif round(balances[person], 2) < 0:
+                debtors.append([person, balances[person]])
+
+        if len(creditors) == 0 and len(debtors) == 0:
+            print("All balances are settled.")
+        else:
+            print("\nSettlement Plan:")
+
+            i = 0
+            j = 0
+
+            while i < len(debtors) and j < len(creditors):
+                debtor_name = debtors[i][0]
+                debtor_amount = debtors[i][1]
+
+                creditor_name = creditors[j][0]
+                creditor_amount = creditors[j][1]
+
+                pay_amount = min(-debtor_amount, creditor_amount)
+
+                print(debtor_name, "pays", creditor_name, "₹", round(pay_amount, 2))
+
+                debtors[i][1] += pay_amount
+                creditors[j][1] -= pay_amount
+
+                if round(debtors[i][1], 2) == 0:
+                    i += 1
+
+                if round(creditors[j][1], 2) == 0:
+                    j += 1
+
+# 5. Exit
+    elif choice == 5:
+        print("Thank you for using the app.")
+        break
+
+    else:
+        print("Invalid choice. Try again.")
